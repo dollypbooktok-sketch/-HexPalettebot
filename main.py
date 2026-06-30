@@ -3,7 +3,7 @@ import sys
 import logging
 import random
 import re
-from typing import Tuple, Dict, Any
+from typing import Tuple, List, Optional
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
@@ -93,7 +93,7 @@ def get_complementary_color(hex_color: str) -> str:
     return rgb_to_hex(255 - r, 255 - g, 255 - b)
 
 
-def get_analogous_colors(hex_color: str, count: int = 2) -> list:
+def get_analogous_colors(hex_color: str, count: int = 2) -> List[str]:
     """
     Generate analogous colors (colors next to each other on color wheel).
     
@@ -118,7 +118,7 @@ def get_analogous_colors(hex_color: str, count: int = 2) -> list:
     return colors
 
 
-def get_triadic_colors(hex_color: str) -> list:
+def get_triadic_colors(hex_color: str) -> List[str]:
     """
     Generate triadic colors (120 degrees apart on color wheel).
     
@@ -194,7 +194,7 @@ def format_color_info(hex_color: str) -> str:
     )
 
 
-def format_random_color() -> str:
+def format_random_color() -> Tuple[str, str]:
     """Generate and format a random color."""
     color = generate_random_color()
     r, g, b = hex_to_rgb(color)
@@ -672,6 +672,38 @@ def main() -> None:
     try:
         logger.info("🚀 Starting HexPaletteBot...")
         logger.info(f"🤖 Bot Token: {TOKEN[:10]}... (truncated)")
+        logger.info(f"🐍 Python Version: {sys.version}")
         
         # Create application
         app = Application.builder().token(TOKEN).build()
+        
+        # Add command handlers
+        app.add_handler(CommandHandler("start", start))
+        app.add_handler(CommandHandler("help", help_command))
+        app.add_handler(CommandHandler("random", random_color))
+        app.add_handler(CommandHandler("complementary", complementary))
+        app.add_handler(CommandHandler("analogous", analogous))
+        app.add_handler(CommandHandler("convert", convert))
+        
+        # Add message handler for non-commands
+        app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+        
+        # Add callback handler for buttons
+        app.add_handler(CallbackQueryHandler(button_callback))
+        
+        # Add error handler
+        app.add_error_handler(error_handler)
+        
+        # Start the bot
+        logger.info("✅ Bot is running and ready for messages!")
+        app.run_polling()
+        
+    except Exception as e:
+        logger.error(f"❌ Fatal error: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
