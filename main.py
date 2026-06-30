@@ -675,34 +675,3 @@ def main() -> None:
         
         # Create application
         app = Application.builder().token(TOKEN).build()
-        
-        # Add command handlers
-        app.add_handler(CommandHandler("start", start))
-        app.add_handler(CommandHandler("help", help_command))
-        app.add_handler(CommandHandler("random", random_color))
-        app.add_handler(CommandHandler("complementary", complementary))
-        app.add_handler(CommandHandler("analogous", analogous))
-        app.add_handler(CommandHandler("convert", convert))
-        
-        # Add message handler for non-commands
-        app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-        
-        # Add callback handler for buttons
-        app.add_handler(CallbackQueryHandler(button_callback))
-        
-        # Add error handler
-        app.add_error_handler(error_handler)
-        
-        # Start the bot
-        logger.info("✅ Bot is running and ready for messages!")
-        app.run_polling()
-        
-    except Exception as e:
-        logger.error(f"❌ Fatal error: {e}")
-        import traceback
-        logger.error(traceback.format_exc())
-        sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()
